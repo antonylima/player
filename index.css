@@ -13,6 +13,7 @@ body {
 }
 
 .music-player {
+margin-top: 0;
     background-color: #282828; /* Fundo do player mais claro que o body */
     border-radius: 20px;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
