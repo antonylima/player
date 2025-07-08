@@ -211,3 +211,11 @@ body {
         font-size: 3em;
     }
 }
+
+
+@media (orientation:landscape){
+	*{
+		color:red;
+	}	
+	
+}
