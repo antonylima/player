@@ -32,6 +32,11 @@ const sourceNode = audioContext.createMediaElementSource(audio);
 const panNode = audioContext.createStereoPanner();
 sourceNode.connect(panNode).connect(audioContext.destination);
 
+const ensureAudioContext = () =>
+  audioContext.state === "suspended"
+    ? audioContext.resume()
+    : Promise.resolve();
+
 const formatTime = (time) => {
   if (!Number.isFinite(time)) return "00:00";
   const minutes = Math.floor(time / 60);
@@ -83,8 +88,9 @@ const loadTrack = (index, autoplay = true) => {
   updateTrackInfo(track);
   setActiveItem(index);
   if (autoplay) {
-    audioContext.resume();
-    audio.play();
+    ensureAudioContext()
+      .then(() => audio.play())
+      .catch(() => {});
   }
 };
 
@@ -192,9 +198,14 @@ const fetchLibrary = async () => {
 };
 
 playBtn.addEventListener("click", () => {
+  if (!audio.src && tracks.length > 0) {
+    loadTrack(0);
+    return;
+  }
   if (audio.src) {
-    audioContext.resume();
-    audio.play();
+    ensureAudioContext()
+      .then(() => audio.play())
+      .catch(() => {});
   }
 });
 
@@ -239,6 +250,10 @@ audio.addEventListener("timeupdate", () => {
   if (Number.isFinite(audio.duration)) {
     progressBar.value = (audio.currentTime / audio.duration) * 100;
   }
+});
+
+audio.addEventListener("loadedmetadata", () => {
+  durationEl.textContent = formatTime(audio.duration);
 });
 
 audio.addEventListener("ended", () => {

@@ -34,7 +34,7 @@ body {
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
   display: grid;
   gap: 24px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .display {
@@ -108,6 +108,7 @@ body {
 .knobs {
   display: grid;
   gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
 .knob {
@@ -138,6 +139,7 @@ body {
   color: var(--text);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 56px;
 }
 
 .control.primary {
@@ -252,5 +254,29 @@ body {
 
   .microsystem {
     grid-template-columns: 1fr;
+  }
+
+  .library-content {
+    max-height: none;
+  }
+
+  .control-panel {
+    order: 2;
+  }
+
+  .library {
+    order: 3;
+  }
+}
+
+@media (max-width: 520px) {
+  .display-header {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .time-info {
+    grid-template-columns: 1fr;
+    justify-items: start;
   }
 }
