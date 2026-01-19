@@ -27,26 +27,15 @@ let currentIndex = -1;
 let shuffleMode = false;
 let repeatMode = "off"; // off | one | all
 
-let audioContext = null;
-let panNode = null;
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const sourceNode = audioContext.createMediaElementSource(audio);
+const panNode = audioContext.createStereoPanner();
+sourceNode.connect(panNode).connect(audioContext.destination);
 
-const initAudioContext = () => {
-  if (audioContext) return;
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return;
-  audioContext = new AudioContextClass();
-  const sourceNode = audioContext.createMediaElementSource(audio);
-  panNode = audioContext.createStereoPanner();
-  sourceNode.connect(panNode).connect(audioContext.destination);
-};
-
-const ensureAudioContext = () => {
-  initAudioContext();
-  if (!audioContext) return Promise.resolve();
-  return audioContext.state === "suspended"
+const ensureAudioContext = () =>
+  audioContext.state === "suspended"
     ? audioContext.resume()
     : Promise.resolve();
-};
 
 const formatTime = (time) => {
   if (!Number.isFinite(time)) return "00:00";
@@ -242,10 +231,7 @@ volume.addEventListener("input", (event) => {
 });
 
 balance.addEventListener("input", (event) => {
-  initAudioContext();
-  if (panNode) {
-    panNode.pan.value = Number(event.target.value);
-  }
+  panNode.pan.value = Number(event.target.value);
 });
 
 speed.addEventListener("input", (event) => {
