@@ -27,30 +27,15 @@ let currentIndex = -1;
 let shuffleMode = false;
 let repeatMode = "off"; // off | one | all
 
-let audioContext;
-let panNode;
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const sourceNode = audioContext.createMediaElementSource(audio);
+const panNode = audioContext.createStereoPanner();
+sourceNode.connect(panNode).connect(audioContext.destination);
 
-const initAudioContext = () => {
-  if (audioContext) return;
-  try {
-    audio.crossOrigin = "anonymous";
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const sourceNode = audioContext.createMediaElementSource(audio);
-    panNode = audioContext.createStereoPanner();
-    sourceNode.connect(panNode).connect(audioContext.destination);
-  } catch (error) {
-    audioContext = null;
-    panNode = null;
-  }
-};
-
-const ensureAudioContext = () => {
-  initAudioContext();
-  if (!audioContext) return Promise.resolve();
-  return audioContext.state === "suspended"
+const ensureAudioContext = () =>
+  audioContext.state === "suspended"
     ? audioContext.resume()
     : Promise.resolve();
-};
 
 const formatTime = (time) => {
   if (!Number.isFinite(time)) return "00:00";
@@ -99,7 +84,6 @@ const loadTrack = (index, autoplay = true) => {
   const track = tracks[index];
   if (!track) return;
   currentIndex = index;
-  audio.crossOrigin = "anonymous";
   audio.src = track.url;
   updateTrackInfo(track);
   setActiveItem(index);
@@ -247,7 +231,6 @@ volume.addEventListener("input", (event) => {
 });
 
 balance.addEventListener("input", (event) => {
-  if (!panNode) return;
   panNode.pan.value = Number(event.target.value);
 });
 
@@ -271,10 +254,6 @@ audio.addEventListener("timeupdate", () => {
 
 audio.addEventListener("loadedmetadata", () => {
   durationEl.textContent = formatTime(audio.duration);
-});
-
-audio.addEventListener("error", () => {
-  connectionStatus.textContent = "Erro ao tocar";
 });
 
 audio.addEventListener("ended", () => {
